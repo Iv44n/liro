@@ -18,6 +18,21 @@ COPY . .
 
 RUN bun run compile
 
+# ========== MIGRATOR ==========
+FROM base AS migrator
+
+ENV ENVIRONMENT=production
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY package.json drizzle.config.ts ./
+COPY . .
+
+RUN addgroup -S app && adduser -S app -G app
+
+USER app
+
+CMD ["bun", "run", "db:migrate"]
+
 # ========== RUNTIME ==========
 FROM alpine:3.22 AS runner
 
