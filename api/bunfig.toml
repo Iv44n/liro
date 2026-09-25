@@ -1,0 +1,8 @@
+[test]
+preload = ["./test/setup.ts"]
+coverageSkipTestFiles = true
+# Per-file thresholds (Bun fails the run if any covered file is below them).
+coverageThreshold = { lines = 0.8, functions = 0.8 }
+# Declarative table definitions (their callbacks only run in drizzle-kit),
+# test helpers and scripts aren't product code.
+coveragePathIgnorePatterns = ["test/**", "scripts/**", "src/**/*.schemas.ts"]

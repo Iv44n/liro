@@ -1,0 +1,12 @@
+{
+  "status": 200,
+  "headers": { "content-type": "application/json" },
+  "body": {
+    "answers": {
+      "category": { "type": "choice", "choice": "billing" },
+      "severity": { "type": "score", "score": 0.5 },
+      "refund_requested": { "type": "boolean", "probability": 0.93 }
+    },
+    "usage": { "inputTokens": 212 }
+  }
+}

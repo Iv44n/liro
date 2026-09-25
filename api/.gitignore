@@ -1,0 +1,6 @@
+liro_db_data
+node_modules
+.env
+arcton-app
+arcton-app.map
+coverage

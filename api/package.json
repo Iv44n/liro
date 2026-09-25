@@ -1,0 +1,48 @@
+{
+  "name": "liro-api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "compile": "bun build --compile --minify --sourcemap ./src/index.ts --outfile arcton-app",
+    "dev": "bun --hot src/index.ts",
+    "worker": "bun src/worker.ts",
+    "dev:worker": "bun --watch src/worker.ts",
+    "test": "bun test --path-ignore-patterns='test/smoke/**'",
+    "test:unit": "bun test src",
+    "test:integration": "bun test test/integration",
+    "test:smoke": "bun test test/smoke",
+    "test:coverage": "bun test --coverage --path-ignore-patterns='test/smoke/**'",
+    "test:db": "bun run scripts/test-db.ts",
+    "fixtures:record": "bun run scripts/record-evaluator-fixtures.ts",
+    "format": "biome format --write",
+    "check": "biome check",
+    "lint": "biome check --fix",
+    "auth:gen": "bunx --bun auth@latest generate --config src/modules/auth/config.ts --output src/modules/auth/auth.schemas.ts",
+    "db:generate": "bunx --bun drizzle-kit generate --config drizzle.config.ts",
+    "db:migrate": "bunx --bun drizzle-kit migrate --config drizzle.config.ts",
+    "db:push": "bunx --bun drizzle-kit push --config drizzle.config.ts",
+    "db:studio": "bunx --bun drizzle-kit studio --config drizzle.config.ts"
+  },
+  "dependencies": {
+    "@ai-sdk/gateway": "4.0.89",
+    "@arcton/contracts": "0.0.8",
+    "@arcton/core": "^0.0.12",
+    "@arcton/cors": "^0.0.7",
+    "@arcton/logger": "^0.0.3",
+    "@arcton/openapi": "^0.0.1",
+    "@better-auth/api-key": "1.7.5",
+    "@better-auth/drizzle-adapter": "^1.7.4",
+    "@typesafe-ai/sdk": "0.6.0",
+    "ai": "7.0.111",
+    "better-auth": "^1.7.4",
+    "drizzle-orm": "^1.0.0-rc.4",
+    "resend": "^6.28.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.13",
+    "@types/bun": "^1.4.2",
+    "drizzle-kit": "^1.0.0-rc.4"
+  }
+}

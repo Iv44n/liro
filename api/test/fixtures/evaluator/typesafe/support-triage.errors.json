@@ -1,0 +1,74 @@
+{
+  "RATE_LIMITED": {
+    "status": 429,
+    "headers": {
+      "content-type": "application/json",
+      "retry-after": "2",
+      "x-typesafe-request-id": "req_rate_limited"
+    },
+    "body": { "detail": "Rate limit exceeded: 1200 requests per minute" }
+  },
+  "AUTH": {
+    "status": 401,
+    "headers": { "content-type": "application/json" },
+    "body": { "detail": "Invalid API key" }
+  },
+  "MODEL_NOT_FOUND": {
+    "status": 400,
+    "headers": { "content-type": "application/json" },
+    "body": { "detail": "Unknown model: jev-9.9.9" }
+  },
+  "INPUT_TOO_LARGE": {
+    "status": 422,
+    "headers": { "content-type": "application/json" },
+    "body": {
+      "detail": "Request is too large: 71234 tokens exceeds the 64k token context length"
+    }
+  },
+  "INVALID_REQUEST": {
+    "status": 422,
+    "headers": { "content-type": "application/json" },
+    "body": {
+      "detail": [
+        {
+          "loc": ["body", "questions", "severity", "criteria"],
+          "msg": "List should have at most 10 items after validation, not 12",
+          "type": "too_long"
+        }
+      ]
+    }
+  },
+  "OVERLOADED": {
+    "status": 529,
+    "headers": { "content-type": "application/json" },
+    "body": { "detail": "TypeSafe is temporarily overloaded" }
+  },
+  "UNAVAILABLE": {
+    "status": 500,
+    "headers": { "content-type": "application/json" },
+    "body": { "detail": "Internal server error" }
+  },
+  "BAD_RESPONSE": {
+    "status": 200,
+    "headers": { "content-type": "application/json" },
+    "body": {
+      "model": "jev-1.13.0",
+      "answers": {
+        "category": {
+          "type": "choice",
+          "choice": "not-an-option",
+          "probabilities": { "not-an-option": 1 },
+          "confidence": 1
+        },
+        "severity": {
+          "type": "score",
+          "score": 0.5,
+          "probabilities": { "0": 0.5, "1": 0.5, "2": 0 },
+          "confidence": 0.25
+        },
+        "refund_requested": { "type": "noul", "noul": 0.9 }
+      },
+      "usage": { "input_tokens": 212, "output_tokens": 18 }
+    }
+  }
+}

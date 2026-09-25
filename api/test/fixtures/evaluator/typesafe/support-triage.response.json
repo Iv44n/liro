@@ -1,0 +1,35 @@
+{
+  "status": 200,
+  "headers": {
+    "content-type": "application/json",
+    "x-typesafe-request-id": "req_fixture_123"
+  },
+  "body": {
+    "model": "jev-1.13.0",
+    "answers": {
+      "category": {
+        "type": "choice",
+        "choice": "billing",
+        "probabilities": {
+          "bug": 0.05,
+          "billing": 0.9,
+          "feature_request": 0.05
+        },
+        "confidence": 0.85
+      },
+      "severity": {
+        "type": "score",
+        "score": 0.5,
+        "legend": {
+          "0": "Not blocked: cosmetic or informational",
+          "1": "Partially blocked: a workaround exists",
+          "2": "Fully blocked: cannot continue"
+        },
+        "probabilities": { "0": 0.6, "1": 0.3, "2": 0.1 },
+        "confidence": 0.4
+      },
+      "refund_requested": { "type": "noul", "noul": 0.93 }
+    },
+    "usage": { "input_tokens": 212, "output_tokens": 18 }
+  }
+}

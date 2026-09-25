@@ -1,0 +1,13 @@
+{
+  "category": {
+    "type": "choice",
+    "choice": "billing",
+    "probabilities": { "bug": 0.05, "billing": 0.9, "feature_request": 0.05 }
+  },
+  "severity": {
+    "type": "score",
+    "score": 0.5,
+    "probabilities": { "0": 0.6, "1": 0.3, "2": 0.1 }
+  },
+  "refund_requested": { "type": "boolean", "probability": 0.93 }
+}

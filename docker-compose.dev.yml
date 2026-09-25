@@ -1,0 +1,70 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: liro_user
+      POSTGRES_PASSWORD: liro_password
+      POSTGRES_DB: liro_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U liro_user -d liro_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - ./api/.env
+    environment:
+      PORT: 3000
+      DATABASE_URL: "postgresql://liro_user:liro_password@postgres:5432/liro_db"
+    ports:
+      - "3002:3000"
+    volumes:
+      - ./api:/app
+      - /app/node_modules
+      - bun_cache:/root/.bun/install/cache
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  # Effects/jobs worker: same image as `api`, running `src/worker.ts` instead
+  # of the HTTP server. `RUN_WORKER` (in `api/.env`) is irrelevant to this
+  # service — it always runs the worker loop, regardless of that flag (which
+  # only controls whether `api` ALSO runs one in-process).
+  worker:
+    build:
+      context: ./api
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - ./api/.env
+    environment:
+      DATABASE_URL: "postgresql://liro_user:liro_password@postgres:5432/liro_db"
+    command: ["sh", "-c", "bun install && bun --watch src/worker.ts"]
+    volumes:
+      - ./api:/app
+      - /app/node_modules
+      - bun_cache:/root/.bun/install/cache
+
+volumes:
+  postgres_data:
+  bun_cache:
