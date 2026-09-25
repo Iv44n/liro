@@ -8,6 +8,7 @@ import { log } from '#shared/config/logger'
 import { Id } from '#shared/core/base'
 import { db } from '#shared/db/config'
 import { email } from '#shared/integrations/email'
+import { actionEmail } from '#shared/integrations/email-templates'
 import { ac, roles } from './access'
 import { apikeys } from './auth.schemas'
 
@@ -49,7 +50,14 @@ export const auth = betterAuth({
       await email.send({
         to: user.email,
         subject: 'Reset your password',
-        html: `<p>Click <a href="${url}">here</a> to reset your password.</p>`
+        html: actionEmail({
+          preheader: 'Reset your Liro password',
+          title: 'Reset your password',
+          message:
+            'Use the button below to choose a new password for your Liro account.',
+          actionLabel: 'Reset password',
+          actionUrl: url
+        })
       })
     }
   },
@@ -62,7 +70,14 @@ export const auth = betterAuth({
       await email.send({
         to: user.email,
         subject: 'Verify your email',
-        html: `<p>Click <a href="${url}">here</a> to verify your email.</p>`
+        html: actionEmail({
+          preheader: 'Verify your Liro email address',
+          title: 'Verify your email',
+          message:
+            'Confirm your email address to finish setting up your Liro account.',
+          actionLabel: 'Verify email',
+          actionUrl: url
+        })
       })
     }
   },
@@ -90,7 +105,13 @@ export const auth = betterAuth({
         await email.send({
           to,
           subject: `Invitation to join ${organization.name}`,
-          html: `<p>Click <a href="${inviteLink}">here</a> to accept the invitation to join ${organization.name}.</p>`
+          html: actionEmail({
+            preheader: `Invitation to join ${organization.name} on Liro`,
+            title: `Join ${organization.name} on Liro`,
+            message: `${inviter.user.name} invited you to collaborate in ${organization.name}.`,
+            actionLabel: 'Accept invitation',
+            actionUrl: inviteLink
+          })
         })
       }
     }),

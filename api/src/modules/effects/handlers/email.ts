@@ -4,6 +4,7 @@ import type { EffectPayload } from '#modules/effects/payload'
 import { env } from '#shared/config/env'
 import { db } from '#shared/db/config'
 import { email } from '#shared/integrations/email'
+import { decisionEmail } from '#shared/integrations/email-templates'
 import type { Deliver } from './types'
 
 /**
@@ -33,24 +34,15 @@ function summaryHtml(payload: EffectPayload): {
   const confidence =
     run.confidence === null ? '—' : `${Math.round(run.confidence * 100)}%`
 
-  const html = `
-    <p><strong>${label}</strong> — ${escapeHtml(run.template)}</p>
-    <ul>
-      <li>Decision: ${escapeHtml(decision)}</li>
-      <li>Confidence: ${escapeHtml(confidence)}</li>
-    </ul>
-    <p><a href="${escapeHtml(link)}">${escapeHtml(link)}</a></p>
-  `.trim()
+  const html = decisionEmail({
+    eventLabel: label,
+    template: run.template,
+    decision,
+    confidence,
+    runUrl: link
+  })
 
   return { subject: `Liro: ${label} — ${run.template}`, html }
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
 }
 
 /** The addresses of `candidates` that are verified emails of a current member of `organizationId`. */

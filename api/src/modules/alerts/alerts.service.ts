@@ -26,6 +26,7 @@ import { decryptSecret } from '#shared/core/crypto'
 import { db } from '#shared/db/config'
 import { ApiError, parseOrThrow } from '#shared/http/errors'
 import { email } from '#shared/integrations/email'
+import { alertEmail } from '#shared/integrations/email-templates'
 import { type JobHandler, registerJobHandler } from '#shared/jobs/queue'
 import { registerPeriodicJob } from '#shared/jobs/scheduler'
 import {
@@ -422,14 +423,6 @@ interface NotifyOutcome {
   error?: string
 }
 
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-}
-
 function alertEmailContent(
   rule: AlertRuleRow,
   value: number,
@@ -440,14 +433,13 @@ function alertEmailContent(
     ? `template ${rule.templateId}`
     : 'every template'
   const subject = `Liro alert: ${metricLabel} (${scope})`
-  const html = `
-    <p><strong>${escapeHtml(metricLabel)}</strong> tripped an alert for ${escapeHtml(scope)}.</p>
-    <ul>
-      <li>Value: ${escapeHtml(String(value))}</li>
-      <li>Threshold: ${escapeHtml(String(threshold))}</li>
-      <li>Window: ${rule.windowMinutes} minute(s)</li>
-    </ul>
-  `.trim()
+  const html = alertEmail({
+    metric: metricLabel,
+    scope,
+    value: String(value),
+    threshold: String(threshold),
+    windowMinutes: rule.windowMinutes
+  })
   return { subject, html }
 }
 
