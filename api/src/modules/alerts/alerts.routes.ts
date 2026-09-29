@@ -1,6 +1,4 @@
 import { Arcton } from '@arcton/core'
-import { readJson } from '#shared/http/body'
-import { parseOrThrow } from '#shared/http/errors'
 import { requirePermission, withOrgSession } from '#shared/http/session'
 import {
   createAlertRule,
@@ -27,6 +25,7 @@ alertsModule.get('/', {
 })
 
 alertsModule.post('/', {
+  body: createAlertRuleSchema,
   detail: {
     summary: 'Create an alert rule',
     description:
@@ -34,8 +33,7 @@ alertsModule.post('/', {
     tags
   },
   middleware: [requirePermission({ webhook: ['manage'] })],
-  handler: async ({ request, organizationId, user, response }) => {
-    const body = await readJson(request, createAlertRuleSchema)
+  handler: async ({ organizationId, user, response, body }) => {
     const rule = await createAlertRule(
       { organizationId, userId: user.id },
       body
@@ -47,20 +45,18 @@ alertsModule.post('/', {
 
 // Registered before `/:id`, which would otherwise read "events" as an id.
 alertsModule.get('/events', {
+  query: listAlertEventsQuerySchema,
   detail: {
     summary: 'List alert events',
     tags,
     description:
       '`ruleId` filters to one rule; newest first. Paginate by passing the previous `nextCursor` as `cursor`; `limit` ≤ 100 (default 50).'
   },
-  handler: ({ organizationId, query }) =>
-    listAlertEvents(
-      organizationId,
-      parseOrThrow(listAlertEventsQuerySchema, query)
-    )
+  handler: ({ organizationId, query }) => listAlertEvents(organizationId, query)
 })
 
 alertsModule.patch('/:id', {
+  body: updateAlertRuleSchema,
   detail: {
     summary: 'Update an alert rule',
     description:
@@ -68,8 +64,7 @@ alertsModule.patch('/:id', {
     tags
   },
   middleware: [requirePermission({ webhook: ['manage'] })],
-  handler: async ({ request, params, organizationId }) => {
-    const body = await readJson(request, updateAlertRuleSchema)
+  handler: async ({ params, organizationId, body }) => {
     return { rule: await updateAlertRule(organizationId, params.id, body) }
   }
 })

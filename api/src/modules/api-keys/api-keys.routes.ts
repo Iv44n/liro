@@ -4,7 +4,6 @@ import z from 'zod'
 import { apikeys } from '#modules/auth/auth.schemas'
 import { API_KEY_CONFIGS, type ApiKeyMode, auth } from '#modules/auth/config'
 import { db } from '#shared/db/config'
-import { readJson } from '#shared/http/body'
 import { ApiError } from '#shared/http/errors'
 import { requirePermission, withOrgSession } from '#shared/http/session'
 
@@ -30,6 +29,8 @@ const publicColumns = {
   createdAt: apikeys.createdAt
 }
 
+const tags = ['API keys']
+
 /**
  * Organization API keys for `/v1`. Created server-side through the plugin
  * (the plugin's own client endpoints can't set org ownership explicitly), and
@@ -40,7 +41,7 @@ export const apiKeysModule = Arcton({ prefix: '/api/api-keys' }).provide(
 )
 
 apiKeysModule.get('/', {
-  detail: { summary: 'List API keys', tags: ['API keys'] },
+  detail: { summary: 'List API keys', tags },
   middleware: [requirePermission({ apiKey: ['read'] })],
   handler: async ({ organizationId }) => {
     const rows = await db
@@ -59,11 +60,10 @@ apiKeysModule.get('/', {
 })
 
 apiKeysModule.post('/', {
-  detail: { summary: 'Create an API key', tags: ['API keys'] },
+  body: createApiKeySchema,
+  detail: { summary: 'Create an API key', tags },
   middleware: [requirePermission({ apiKey: ['create'] })],
-  handler: async ({ request, response, organizationId, user }) => {
-    const body = await readJson(request, createApiKeySchema)
-
+  handler: async ({ response, organizationId, user, body }) => {
     const created = await auth.api.createApiKey({
       body: {
         configId: API_KEY_CONFIGS[body.mode].configId,
@@ -89,7 +89,7 @@ apiKeysModule.post('/', {
 })
 
 apiKeysModule.delete('/:id', {
-  detail: { summary: 'Revoke an API key', tags: ['API keys'] },
+  detail: { summary: 'Revoke an API key', tags },
   middleware: [requirePermission({ apiKey: ['delete'] })],
   handler: async ({ params, response, organizationId }) => {
     const deleted = await db

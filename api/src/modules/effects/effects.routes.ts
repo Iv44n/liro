@@ -1,5 +1,4 @@
 import { Arcton } from '@arcton/core'
-import { readJson } from '#shared/http/body'
 import { requirePermission, withOrgSession } from '#shared/http/session'
 import {
   createEffectBinding,
@@ -34,6 +33,7 @@ effectsModule.get('/:id/effects', {
 })
 
 effectsModule.post('/:id/effects', {
+  body: createEffectBindingSchema,
   detail: {
     summary: 'Create an effect binding',
     description:
@@ -41,8 +41,7 @@ effectsModule.post('/:id/effects', {
     tags
   },
   middleware: [requirePermission({ template: ['update'] })],
-  handler: async ({ request, params, response, organizationId, user }) => {
-    const body = await readJson(request, createEffectBindingSchema)
+  handler: async ({ params, response, organizationId, user, body }) => {
     const binding = await createEffectBinding(
       { organizationId, userId: user.id },
       params.id,
@@ -54,6 +53,7 @@ effectsModule.post('/:id/effects', {
 })
 
 effectsModule.patch('/:id/effects/:bindingId', {
+  body: updateEffectBindingSchema,
   detail: {
     summary: 'Update an effect binding',
     description:
@@ -61,8 +61,7 @@ effectsModule.patch('/:id/effects/:bindingId', {
     tags
   },
   middleware: [requirePermission({ template: ['update'] })],
-  handler: async ({ request, params, organizationId, user }) => {
-    const body = await readJson(request, updateEffectBindingSchema)
+  handler: async ({ params, organizationId, user, body }) => {
     const binding = await updateEffectBinding(
       { organizationId, userId: user.id },
       params.id,

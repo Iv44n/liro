@@ -2,7 +2,6 @@ import { Arcton } from '@arcton/core'
 import z from 'zod'
 import { NUL_MESSAGE } from '#modules/engine/compiled-cache'
 import { REVIEW_STATUSES } from '#modules/reviews/reviews.schemas'
-import { parseOrThrow } from '#shared/http/errors'
 import { withOrgSession } from '#shared/http/session'
 import { RUN_MODES, RUN_SOURCES, RUN_STATUSES } from './runs.schemas'
 import { getRunDetail, listRuns, type RunFilters } from './runs.service'
@@ -63,14 +62,14 @@ export const runsModule = Arcton({ prefix: '/api/runs' }).provide(
 )
 
 runsModule.get('/', {
+  query: listRunsQuerySchema,
   detail: {
     summary: 'List runs',
     tags: ['Runs'],
     description:
       'Newest first. Filters: templateId, decision, mode, source, status, reviewStatus, from/to (inclusive, ISO 8601: a date-time with offset, or a date — `to=2026-09-23` includes that whole UTC day). Paginate by passing the previous `nextCursor` as `cursor`; `limit` ≤ 100 (default 50).'
   },
-  handler: ({ organizationId, query }) =>
-    listRuns(organizationId, parseOrThrow(listRunsQuerySchema, query))
+  handler: ({ organizationId, query }) => listRuns(organizationId, query)
 })
 
 runsModule.get('/:id', {

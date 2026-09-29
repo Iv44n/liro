@@ -10,7 +10,6 @@ import { templateDefinitionSchema } from '#modules/templates/definition'
 import { hasLintErrors, lintDefinition } from '#modules/templates/lint'
 import { getTemplate, loadDraft } from '#modules/templates/templates.service'
 import { hashJson } from '#shared/core/hash'
-import { readJson } from '#shared/http/body'
 import { ApiError } from '#shared/http/errors'
 import { requirePermission, withOrgSession } from '#shared/http/session'
 import { runDetailView } from './runs.views'
@@ -36,6 +35,7 @@ export const playgroundModule = Arcton({ prefix: '/api/templates' }).provide(
 )
 
 playgroundModule.post('/:id/draft/test', {
+  body: playgroundBodySchema,
   detail: {
     summary: 'Test the draft',
     tags: ['Templates'],
@@ -43,9 +43,8 @@ playgroundModule.post('/:id/draft/test', {
       'Runs the saved draft — or `definition`, the unsaved editor state — against `input`, in test mode at playground priority. Never creates a review task; lint errors block the run (422 LINT_FAILED).'
   },
   middleware: [requirePermission({ template: ['update'] })],
-  handler: async ({ organizationId, params, request, user }) => {
+  handler: async ({ organizationId, params, body, user }) => {
     const template = await getTemplate(organizationId, params.id)
-    const body = await readJson(request, playgroundBodySchema)
     const draft = await loadDraft(organizationId, template.id, {
       userId: user.id
     })

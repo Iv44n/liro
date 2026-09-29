@@ -6,11 +6,11 @@
       "name": "liro",
       "dependencies": {
         "@ai-sdk/gateway": "4.0.89",
-        "@arcton/contracts": "0.0.8",
-        "@arcton/core": "^0.0.12",
+        "@arcton/contracts": "0.0.10",
+        "@arcton/core": "^0.0.15",
         "@arcton/cors": "^0.0.7",
         "@arcton/logger": "^0.0.3",
-        "@arcton/openapi": "^0.0.1",
+        "@arcton/openapi": "^0.0.3",
         "@better-auth/api-key": "1.7.5",
         "@better-auth/drizzle-adapter": "^1.7.4",
         "@typesafe-ai/sdk": "0.6.0",
@@ -36,15 +36,15 @@
 
     "@arcton/adapter-bun": ["@arcton/adapter-bun@0.0.8", "", { "dependencies": { "@arcton/contracts": "0.0.7" }, "peerDependencies": { "typescript": "^7" } }, "sha512-fWT5R8v2wFylJlI/pyN9MEO85nGad2DHNQ63QOR+D8HSWPGCibVACVysh7bJ7pWn6FYyMo667YcV8cxV0drinQ=="],
 
-    "@arcton/contracts": ["@arcton/contracts@0.0.8", "", { "peerDependencies": { "typescript": "^7" } }, "sha512-FRkECaRH889OsMlmOxYGaIoZK+RUOx9M4v9/oNHRq0UMY3sZ/zJusyf8qBPhEAoLhFoNBLQUcCnb/kaMVRvH2A=="],
+    "@arcton/contracts": ["@arcton/contracts@0.0.10", "", { "peerDependencies": { "typescript": "^7" } }, "sha512-zNLzD3nzyze3rGVAEasG4kaTNcNK3hD65h8BDarAgdpS1amMynDF9YIgJSWgjSpFaXoCtnSuWEMLgTZi8KTopQ=="],
 
-    "@arcton/core": ["@arcton/core@0.0.12", "", { "dependencies": { "@arcton/adapter-bun": "0.0.8", "@arcton/contracts": "0.0.8" }, "peerDependencies": { "typescript": "^7" } }, "sha512-NOrhGFBVozE6bDZxFReifV6XelxdHRlufsQSlkxNh2RWlHZe8XKCYqvRvqKJr7CwmCMdQcIuMQYhA/9xD0koig=="],
+    "@arcton/core": ["@arcton/core@0.0.15", "", { "dependencies": { "@arcton/adapter-bun": "0.0.8", "@arcton/contracts": "0.0.10" }, "peerDependencies": { "typescript": "^7" } }, "sha512-5Jx+qwpvsBJY5HO9LiVM1jZsPJPMw6NzWc+G4tDh6zGIEYqxnTmINal7NV3mASOwJX56CRZehhx0jGql6r/kEQ=="],
 
     "@arcton/cors": ["@arcton/cors@0.0.7", "", { "dependencies": { "@arcton/contracts": "0.0.7" }, "peerDependencies": { "typescript": "^7" } }, "sha512-TK4w5oeHI/7qIRnmNeyUuIw5BRBBDZpA4Pe/u4mJOxNnpsxaq/LvUoopn1IRcGo2Ew912w0k+qHLb5mzOoArFA=="],
 
     "@arcton/logger": ["@arcton/logger@0.0.3", "", { "dependencies": { "@arcton/contracts": "0.0.8" }, "peerDependencies": { "typescript": "^7" } }, "sha512-/5ITUHVI7w+DEU7o4qyTcWLUpDVa8plsPeBXVa5XeKX6rR8CMA9flnkIbk8C17tZOxiR2AGTOKF6tgVsy2+QBQ=="],
 
-    "@arcton/openapi": ["@arcton/openapi@0.0.1", "", { "dependencies": { "@arcton/contracts": "0.0.8", "@scalar/client-side-rendering": "0.4.0" }, "peerDependencies": { "typescript": "^7" } }, "sha512-uhwLQAGOiFmAIqI+f2UeBn2ah9F5vLfeYX8ZVCp0XGnh5ZaMIT7z3cmaa/EQjQm43c0ZuaJxkkXW2Hl7EyTDiQ=="],
+    "@arcton/openapi": ["@arcton/openapi@0.0.3", "", { "dependencies": { "@arcton/contracts": "0.0.10", "@scalar/client-side-rendering": "0.4.0" }, "peerDependencies": { "typescript": "^7" } }, "sha512-phGnTR5X8k9OUBkkq4DJftPMsJqwnuYkkQvteQS389OqViMReySbjs2i3yBKj2yB93XgF+fRxmRRw76D0uoYNQ=="],
 
     "@better-auth/api-key": ["@better-auth/api-key@1.7.5", "", { "dependencies": { "zod": "^4.5.4" }, "peerDependencies": { "@better-auth/core": "^1.7.5", "@better-auth/utils": "0.4.2", "better-auth": "^1.7.5", "better-call": "1.4.0" } }, "sha512-wrRacs0Gx2MyoOITjjrEBCR5dTxLVhCqkXhRNbeZXveVMBOXtCBPnruB0z+sccNAcynz0496IXVJq/AVexgN0g=="],
 
@@ -273,6 +273,8 @@
     "@arcton/adapter-bun/@arcton/contracts": ["@arcton/contracts@0.0.7", "", { "peerDependencies": { "typescript": "^7" } }, "sha512-saaFqq8nojrdwmVyBaHUtg9RgE1vRbMJGa5Y62JBaghxkFM0xJB7PVZGlr0RBgH9O8/xN+/KqmmR/60PISRH0A=="],
 
     "@arcton/cors/@arcton/contracts": ["@arcton/contracts@0.0.7", "", { "peerDependencies": { "typescript": "^7" } }, "sha512-saaFqq8nojrdwmVyBaHUtg9RgE1vRbMJGa5Y62JBaghxkFM0xJB7PVZGlr0RBgH9O8/xN+/KqmmR/60PISRH0A=="],
+
+    "@arcton/logger/@arcton/contracts": ["@arcton/contracts@0.0.8", "", { "peerDependencies": { "typescript": "^7" } }, "sha512-FRkECaRH889OsMlmOxYGaIoZK+RUOx9M4v9/oNHRq0UMY3sZ/zJusyf8qBPhEAoLhFoNBLQUcCnb/kaMVRvH2A=="],
 
     "better-call/@better-auth/utils": ["@better-auth/utils@0.5.0", "", { "dependencies": { "@noble/hashes": "^2.0.1" } }, "sha512-BL8W4EfIZFwlu0r54m3v1ztjDhu6dDe/amLTm0xybmbZaNgYUqhD3SjpAsnq0q8YD6/ki4iwIgxJNLP/N3TxiA=="],
   }

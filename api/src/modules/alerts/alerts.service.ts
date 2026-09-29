@@ -24,7 +24,7 @@ import { log } from '#shared/config/logger'
 import { Id } from '#shared/core/base'
 import { decryptSecret } from '#shared/core/crypto'
 import { db } from '#shared/db/config'
-import { ApiError, parseOrThrow } from '#shared/http/errors'
+import { ApiError } from '#shared/http/errors'
 import { email } from '#shared/integrations/email'
 import { alertEmail } from '#shared/integrations/email-templates'
 import { type JobHandler, registerJobHandler } from '#shared/jobs/queue'
@@ -243,7 +243,7 @@ async function resolveAlertTarget(
 ): Promise<AlertTarget> {
   switch (channel) {
     case 'email': {
-      const { to } = parseOrThrow(emailTargetSchema, rawTarget)
+      const { to } = emailTargetSchema.parse(rawTarget)
       const verified = await currentVerifiedMemberEmails(organizationId, to)
       const invalid = to.filter(address => !verified.has(address))
       if (invalid.length > 0) {
@@ -257,7 +257,7 @@ async function resolveAlertTarget(
       return { to }
     }
     case 'webhook': {
-      const { endpointId } = parseOrThrow(webhookTargetSchema, rawTarget)
+      const { endpointId } = webhookTargetSchema.parse(rawTarget)
       await requireWebhookEndpointExists(organizationId, endpointId)
       return { endpointId }
     }

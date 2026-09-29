@@ -1,6 +1,5 @@
 import { Arcton } from '@arcton/core'
-import { readJson } from '#shared/http/body'
-import { ApiError, parseOrThrow } from '#shared/http/errors'
+import { ApiError } from '#shared/http/errors'
 import { requirePermission, withOrgSession } from '#shared/http/session'
 import { GALLERY } from './gallery'
 import {
@@ -60,19 +59,20 @@ export const templatesModule = Arcton({ prefix: '/api/templates' }).provide(
 )
 
 templatesModule.get('/', {
+  query: listTemplatesQuerySchema,
   detail: {
     summary: 'List templates',
     description:
       '`status`: `active` (default), `archived` or `all`. Most recently updated first.',
     tags
   },
-  handler: async ({ query, organizationId }) => {
-    const { status } = parseOrThrow(listTemplatesQuerySchema, query)
-    return { data: await listTemplates(organizationId, status) }
-  }
+  handler: async ({ query, organizationId }) => ({
+    data: await listTemplates(organizationId, query.status)
+  })
 })
 
 templatesModule.post('/', {
+  body: createTemplateSchema,
   detail: {
     summary: 'Create a template',
     description:
@@ -80,8 +80,7 @@ templatesModule.post('/', {
     tags
   },
   middleware: [requirePermission({ template: ['create'] })],
-  handler: async ({ request, response, organizationId, user }) => {
-    const body = await readJson(request, createTemplateSchema)
+  handler: async ({ response, organizationId, user, body }) => {
     const created = await createTemplate(
       { organizationId, userId: user.id },
       body
@@ -92,6 +91,7 @@ templatesModule.post('/', {
 })
 
 templatesModule.post('/lint', {
+  body: lintRequestSchema,
   detail: {
     summary: 'Lint a definition',
     description:
@@ -99,8 +99,7 @@ templatesModule.post('/lint', {
     tags
   },
   middleware: [requirePermission({ template: ['update'] })],
-  handler: async ({ request, organizationId }) => {
-    const body = await readJson(request, lintRequestSchema)
+  handler: async ({ organizationId, body }) => {
     return lintTemplateDefinition(organizationId, body)
   }
 })
@@ -113,16 +112,16 @@ templatesModule.get('/:id', {
 })
 
 templatesModule.patch('/:id', {
+  body: updateTemplateSchema,
   detail: {
     summary: 'Update a template',
     description: 'The slug can no longer change once a version is published.',
     tags
   },
   middleware: [requirePermission({ template: ['update'] })],
-  handler: async ({ request, params, organizationId }) => {
-    const body = await readJson(request, updateTemplateSchema)
-    return { template: await updateTemplate(organizationId, params.id, body) }
-  }
+  handler: async ({ params, organizationId, body }) => ({
+    template: await updateTemplate(organizationId, params.id, body)
+  })
 })
 
 templatesModule.post('/:id/archive', {
@@ -158,6 +157,7 @@ templatesModule.get('/:id/draft', {
 })
 
 templatesModule.put('/:id/draft', {
+  body: saveDraftSchema,
   detail: {
     summary: "Save a template's draft",
     description:
@@ -165,9 +165,16 @@ templatesModule.put('/:id/draft', {
     tags
   },
   middleware: [requirePermission({ template: ['update'] })],
-  handler: async ({ request, params, response, organizationId, user }) => {
+  handler: async ({
+    request,
+    params,
+    response,
+    organizationId,
+    user,
+    body
+  }) => {
     const ifMatch = ifMatchHash(request)
-    const { definition } = await readJson(request, saveDraftSchema)
+    const { definition } = body
     const draft = await saveDraft({
       organizationId,
       userId: user.id,
@@ -181,6 +188,7 @@ templatesModule.put('/:id/draft', {
 })
 
 templatesModule.post('/:id/publish', {
+  body: publishSchema,
   detail: {
     summary: 'Publish the draft',
     description:
@@ -188,8 +196,7 @@ templatesModule.post('/:id/publish', {
     tags
   },
   middleware: [requirePermission({ template: ['publish'] })],
-  handler: async ({ request, params, response, organizationId, user }) => {
-    const body = await readJson(request, publishSchema)
+  handler: async ({ params, response, organizationId, user, body }) => {
     const published = await publishDraft(
       { organizationId, userId: user.id },
       params.id,

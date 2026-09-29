@@ -1,6 +1,4 @@
 import { Arcton } from '@arcton/core'
-import { readJson } from '#shared/http/body'
-import { parseOrThrow } from '#shared/http/errors'
 import { requirePermission, withOrgSession } from '#shared/http/session'
 import {
   createWebhookEndpoint,
@@ -36,14 +34,14 @@ webhooksModule.get('/', {
 })
 
 webhooksModule.post('/', {
+  body: createWebhookEndpointSchema,
   detail: {
     summary: 'Create a webhook endpoint',
     description: 'The signing secret is generated here and shown once.',
     tags
   },
   middleware: [requirePermission({ webhook: ['manage'] })],
-  handler: async ({ request, response, organizationId, user }) => {
-    const body = await readJson(request, createWebhookEndpointSchema)
+  handler: async ({ response, organizationId, user, body }) => {
     const created = await createWebhookEndpoint(
       { organizationId, userId: user.id },
       body
@@ -61,6 +59,7 @@ webhooksModule.get('/:id', {
 })
 
 webhooksModule.patch('/:id', {
+  body: updateWebhookEndpointSchema,
   detail: {
     summary: 'Update a webhook endpoint',
     description:
@@ -68,8 +67,7 @@ webhooksModule.patch('/:id', {
     tags
   },
   middleware: [requirePermission({ webhook: ['manage'] })],
-  handler: async ({ request, params, organizationId }) => {
-    const body = await readJson(request, updateWebhookEndpointSchema)
+  handler: async ({ params, organizationId, body }) => {
     return {
       endpoint: await updateWebhookEndpoint(organizationId, params.id, body)
     }
@@ -122,6 +120,7 @@ webhooksModule.post('/:id/test', {
 })
 
 webhooksModule.get('/:id/deliveries', {
+  query: listDeliveriesQuerySchema,
   detail: {
     summary: 'List deliveries for an endpoint',
     description:
@@ -129,9 +128,5 @@ webhooksModule.get('/:id/deliveries', {
     tags
   },
   handler: ({ params, query, organizationId }) =>
-    listWebhookDeliveries(
-      organizationId,
-      params.id,
-      parseOrThrow(listDeliveriesQuerySchema, query)
-    )
+    listWebhookDeliveries(organizationId, params.id, query)
 })

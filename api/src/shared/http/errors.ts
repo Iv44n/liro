@@ -1,6 +1,6 @@
 import type { ErrorHandler } from '@arcton/contracts'
-import { HttpError } from '@arcton/core'
-import type z from 'zod'
+import { HttpError, ValidationError } from '@arcton/core'
+import z from 'zod'
 import { log } from '#shared/config/logger'
 
 /**
@@ -26,34 +26,54 @@ export interface ErrorBody {
   error: { code: string; message: string; details?: unknown }
 }
 
-/**
- * Validates `value` against `schema`, throwing a `422 VALIDATION_FAILED` in
- * the public error format. Used instead of `RouteOptions.body` on `/v1`:
- * Arcton answers route-level validation failures with its own raw
- * `400 { issues }` response, which bypasses `onError`.
- */
-export function parseOrThrow<T extends z.ZodType>(
-  schema: T,
-  value: unknown
-): z.output<T> {
-  const result = schema.safeParse(value)
+interface NormalizedIssue {
+  path: string
+  message: string
+  code?: string
+}
 
-  if (!result.success) {
-    throw new ApiError(422, 'VALIDATION_FAILED', 'Request validation failed', {
-      details: {
-        issues: result.error.issues.map(issue => ({
-          path: issue.path.join('.'),
-          message: issue.message,
-          code: issue.code
-        }))
-      }
-    })
-  }
+/** Path segments as arcton/`StandardSchema` issues carry them, or as zod's own. */
+type IssuePath = ReadonlyArray<PropertyKey | { key: PropertyKey }>
 
-  return result.data
+function normalizeIssues(
+  issues: ReadonlyArray<{ message: string; path?: IssuePath; code?: string }>
+): NormalizedIssue[] {
+  return issues.map(issue => ({
+    path: (issue.path ?? [])
+      .map(segment =>
+        typeof segment === 'object' ? String(segment.key) : String(segment)
+      )
+      .join('.'),
+    message: issue.message,
+    code: issue.code
+  }))
 }
 
 export const errorHandler: ErrorHandler = (err, ctx): ErrorBody => {
+  if (err instanceof ValidationError) {
+    // arcton's own synthetic issue for a body that failed to parse at all
+    // (e.g. malformed JSON) — no `path`, unlike a real schema issue.
+    const issue = err.issues.length === 1 ? err.issues[0] : undefined
+    if (issue !== undefined && issue.path === undefined) {
+      ctx.response.status = 400
+      return {
+        error: {
+          code: 'INVALID_JSON',
+          message: 'Request body is not valid JSON'
+        }
+      }
+    }
+
+    ctx.response.status = 422
+    return {
+      error: {
+        code: 'VALIDATION_FAILED',
+        message: 'Request validation failed',
+        details: { issues: normalizeIssues(err.issues) }
+      }
+    }
+  }
+
   if (err instanceof HttpError) {
     ctx.response.status = err.status
 
@@ -68,6 +88,17 @@ export const errorHandler: ErrorHandler = (err, ctx): ErrorBody => {
         code: err.code,
         message: err.message,
         ...(err.body === undefined ? {} : { details: err.body })
+      }
+    }
+  }
+
+  if (err instanceof z.ZodError) {
+    ctx.response.status = 422
+    return {
+      error: {
+        code: 'VALIDATION_FAILED',
+        message: 'Request validation failed',
+        details: { issues: normalizeIssues(err.issues) }
       }
     }
   }

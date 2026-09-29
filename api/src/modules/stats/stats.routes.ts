@@ -2,7 +2,6 @@ import { Arcton } from '@arcton/core'
 import z from 'zod'
 import { NUL_MESSAGE } from '#modules/engine/compiled-cache'
 import { RUN_SOURCES } from '#modules/runs/runs.schemas'
-import { parseOrThrow } from '#shared/http/errors'
 import { withOrgSession } from '#shared/http/session'
 import {
   getOverviewStats,
@@ -36,6 +35,7 @@ export const statsModule = Arcton({ prefix: '/api/stats' }).provide(
 )
 
 statsModule.get('/overview', {
+  query: overviewQuerySchema,
   detail: {
     summary: 'Organization-wide stats overview',
     tags,
@@ -43,14 +43,11 @@ statsModule.get('/overview', {
       "`range`: `24h` (hourly buckets), `7d`, `30d` or `90d` (daily buckets). `mode`: `live` (default), `test` or `all`. `source` defaults to `api`. Totals and, per template with any matching run, its run count, reviewRate, failureRate, p95 latency and a run-count trend across the range's buckets, busiest first."
   },
   handler: ({ organizationId, query }) =>
-    getOverviewStats(
-      organizationId,
-      parseOrThrow(overviewQuerySchema, query),
-      new Date()
-    )
+    getOverviewStats(organizationId, query, new Date())
 })
 
 statsModule.get('/templates/:id', {
+  query: templateStatsQuerySchema,
   detail: {
     summary: 'One template stats',
     tags,
@@ -58,10 +55,5 @@ statsModule.get('/templates/:id', {
       "`range`/`mode`/`source` as in the overview, plus an optional `versionId` to scope to one published version. Totals, decisions and finalDecisions breakdowns, a 10-bin confidence histogram, latency/evaluator-latency percentiles, token sums, failed-run errors, flag counts, a bucketed time series and the template's review-inbox summary."
   },
   handler: ({ organizationId, params, query }) =>
-    getTemplateStats(
-      organizationId,
-      params.id,
-      parseOrThrow(templateStatsQuerySchema, query),
-      new Date()
-    )
+    getTemplateStats(organizationId, params.id, query, new Date())
 })

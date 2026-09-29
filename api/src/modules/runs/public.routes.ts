@@ -10,7 +10,6 @@ import type { JsonObject } from '#modules/templates/paths'
 import { parseRef } from '#modules/templates/versioning'
 import { db } from '#shared/db/config'
 import { withActor } from '#shared/http/actor'
-import { readJson } from '#shared/http/body'
 import {
   findIdempotentReplay,
   idempotencyKeyOf,
@@ -155,16 +154,16 @@ publicDecisionsModule.get('/:ref', {
 })
 
 publicDecisionsModule.post('/:ref/run', {
+  body: runBodySchema,
   detail: {
     summary: 'Run a decision',
     tags: ['Decisions'],
     description:
       'Body `{ input, metadata? }`. Send an `Idempotency-Key` header to make retries safe (24 h): a retry of a completed request returns its stored run (`Idempotent-Replayed: true`) even if the ref has since moved, the template was archived or the version withdrawn. A `needs_review` result creates a review task; poll `GET /v1/runs/:id` for the final decision.'
   },
-  handler: async ({ actor, params, request, response }) => {
+  handler: async ({ actor, params, request, response, body }) => {
     const { organizationId } = actor
     const key = idempotencyKeyOf(request.headers)
-    const body = await readJson(request, runBodySchema)
     const metadata = body.metadata ?? undefined
     const idempotency = key
       ? {

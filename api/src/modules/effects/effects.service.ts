@@ -24,7 +24,7 @@ import {
 import { Id } from '#shared/core/base'
 import { decryptSecret, encryptSecret } from '#shared/core/crypto'
 import { db } from '#shared/db/config'
-import { ApiError, parseOrThrow } from '#shared/http/errors'
+import { ApiError } from '#shared/http/errors'
 import {
   type EffectBindingConfig,
   type EffectType,
@@ -536,12 +536,12 @@ async function resolveConfig(
 ): Promise<EffectBindingConfig> {
   switch (type) {
     case 'webhook': {
-      const { endpointId } = parseOrThrow(webhookConfigInput, rawConfig)
+      const { endpointId } = webhookConfigInput.parse(rawConfig)
       await requireWebhookEndpoint(organizationId, endpointId)
       return { endpointId }
     }
     case 'email': {
-      const { to } = parseOrThrow(emailConfigInput, rawConfig)
+      const { to } = emailConfigInput.parse(rawConfig)
       const verified = await currentVerifiedMemberEmails(organizationId, to)
       const invalid = to.filter(email => !verified.has(email))
       if (invalid.length > 0) {
@@ -555,7 +555,7 @@ async function resolveConfig(
       return { to }
     }
     case 'slack': {
-      const { webhookUrl, channel } = parseOrThrow(slackConfigInput, rawConfig)
+      const { webhookUrl, channel } = slackConfigInput.parse(rawConfig)
       assertValidSlackUrl(webhookUrl)
       return {
         webhookUrlEncrypted: encryptSecret(webhookUrl),
